@@ -25,9 +25,9 @@ var User = new Schema({
     userImage: {
         type: String
     }, 
-    // uploadedImages: {
-    //     type: Array
-    // }, 
+    uploadedImages: {
+        type: Array
+    }, 
     likedImages: {
         type: Array
     }, 

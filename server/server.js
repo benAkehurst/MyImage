@@ -120,7 +120,7 @@ app.post('/registerUser', (req, res, next) => {
  */
 app.post('/login', (req, res, next) => {
   var data = req.body;
-  User.findOne({
+  UserModel.findOne({
     email: data.email
   }, function (err, user) {
     if (err) {
@@ -180,11 +180,14 @@ app.post("/uploadNewImage", (req, res) => {
     userId: data.userId,
     comments: []
   });
-  newImage.save();
-  res.send({
-    success: true,
-    message: 'Image uploaded successfully'
-  });
+  newImage.save((err, image) => {
+    const imageId = image._id;
+    const userId = image.userId;
+    UserModel.findOneAndUpdate({ _id: userId }, (err, user) => {
+      user.uploadedImages.push(imageId);
+    });
+  }, 
+  res.send({ status: true, message: "Image uploaded successfully" }));
 });
 
 // ─── LIKE IMAGE ─────────────────────────────────────────────
