@@ -11,6 +11,9 @@ var Schema = mongoose.Schema,
     ObjectId = Schema.ObjectId;
 
 var Image = new Schema({
+    imageLink: {
+        type: String
+    },
     caption: {
         type: String
     },

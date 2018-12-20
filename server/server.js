@@ -4,17 +4,13 @@
 // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 //
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
-const request = require('request');
-const rp = require('request-promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const mongooseUniqueValidator = require('mongoose-unique-validator');
-const async = require("async");
+const async = require('async');
 //
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── I ──────────
 //   :::::: S E R V E R   C O N F I G U R A T I O N : :  :   :    :     :        :          :
@@ -22,7 +18,7 @@ const async = require("async");
 //
 
 const app = express();
-require('dotenv').config()
+require('dotenv').config();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
@@ -72,9 +68,9 @@ app.get('*', (req, res) => {
 //
 // ─── MODELS ─────────────────────────────────────────────────────────────────────
 //
-const User = require('./models/userModel');
-const Image = require('./models/imageModel');
-const Comment = require('./models/commentModel');
+const UserModel = require('./models/userModel');
+const ImageModel = require('./models/imageModel');
+const CommentModel = require('./models/commentModel');
 
 //
 // ─────────────────────────────────────────────────────────────────── MODELS ─────
@@ -88,9 +84,9 @@ const Comment = require('./models/commentModel');
  * @param {*} res
  * @param {*} next
  */
-app.post('/registerUser', function (req, res, next) {
+app.post('/registerUser', (req, res, next) => {
   var data = req.body;
-  var user = new User({
+  var user = new UserModel({
     name: data.name,
     email: data.email,
     password: bcrypt.hashSync(data.password, 10)
@@ -122,7 +118,7 @@ app.post('/registerUser', function (req, res, next) {
  * @param {*} res
  * @param {*} next
  */
-app.post('/login', function (req, res, next) {
+app.post('/login', (req, res, next) => {
   var data = req.body;
   User.findOne({
     email: data.email
@@ -166,9 +162,31 @@ app.post('/login', function (req, res, next) {
   });
 });
 
-
 //
 // ─── UPLOAD IMAGE ─────────────────────────────────────────────
+//
+/**
+ * Uploads a new image
+ * saves image item in the DB with id of which user uploaded the image
+ * @param {*} req
+ * @param {*} res
+ */
+app.post("/uploadNewImage", (req, res) => {
+  const data = req.body;
+  const newImage = new ImageModel({
+    imageLink: data.imageLink,
+    caption: data.caption,
+    likes: 0,
+    userId: data.userId,
+    comments: []
+  });
+  newImage.save();
+  res.send({
+    success: true,
+    message: 'Image uploaded successfully'
+  });
+});
+
 // ─── LIKE IMAGE ─────────────────────────────────────────────
 // ─── UNLIKE IMAGE ─────────────────────────────────────────────
 // ─── COMMENT ON IMAGE ─────────────────────────────────────────────
@@ -327,36 +345,36 @@ app.post('/login', function (req, res, next) {
 // app.post("/deleteAntique", function (req, res, next) {
 //   var routeId = req.body.data.route;
 //   var userId = req.body.data.user;
-//   async.parallel({
-//       updateRoute: function (callback) {
-//         Route.findByIdAndRemove(routeId).exec(function (err, updatedRoute) {
-//           callback(err, updatedRoute);
-//         });
-//       },
-//       updatedUser: function (callback) {
-//         User.findByIdAndUpdate(
-//           userId, {
-//             $pull: {
-//               savedRoutes: routeId
-//             }
-//           }, {
-//             new: true
-//           }
-//         ).exec(function (err, updatedUser) {
-//           callback(err, updatedUser);
-//         });
-//       }
-//     },
-//     function (err, results) {
-//       if (err) {
-//         next(err);
-//         return;
-//       }
-//       res.send({
-//         success: true,
-//         user: results.updatedUser
-//       });
-//     }
+  // async.parallel({
+  //     updateRoute: function (callback) {
+  //       Route.findByIdAndRemove(routeId).exec(function (err, updatedRoute) {
+  //         callback(err, updatedRoute);
+  //       });
+  //     },
+  //     updatedUser: function (callback) {
+  //       User.findByIdAndUpdate(
+  //         userId, {
+  //           $pull: {
+  //             savedRoutes: routeId
+  //           }
+  //         }, {
+  //           new: true
+  //         }
+  //       ).exec(function (err, updatedUser) {
+  //         callback(err, updatedUser);
+  //       });
+  //     }
+  //   },
+  //   function (err, results) {
+  //     if (err) {
+  //       next(err);
+  //       return;
+  //     }
+  //     res.send({
+  //       success: true,
+  //       user: results.updatedUser
+  //     });
+  //   }
 //   );
 // });
 

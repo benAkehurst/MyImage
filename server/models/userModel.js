@@ -25,13 +25,13 @@ var User = new Schema({
     userImage: {
         type: String
     }, 
-    images: {
+    // uploadedImages: {
+    //     type: Array
+    // }, 
+    likedImages: {
         type: Array
     }, 
-    likes: {
-        type: Array
-    }, 
-    comments: {
+    imageComments: {
         type: Array
     }
 },
