@@ -10,7 +10,9 @@ const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const request = require('request');
 const async = require('async');
+const axios = require('axios');
 //
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── I ──────────
 //   :::::: S E R V E R   C O N F I G U R A T I O N : :  :   :    :     :        :          :
@@ -162,9 +164,6 @@ app.post('/login', (req, res, next) => {
   });
 });
 
-//
-// ─── UPLOAD IMAGE ─────────────────────────────────────────────
-//
 /**
  * Uploads a new image
  * saves image item in the DB with id of which user uploaded the image
@@ -190,14 +189,91 @@ app.post("/uploadNewImage", (req, res) => {
   res.send({ status: true, message: "Image uploaded successfully" }));
 });
 
-// ─── LIKE IMAGE ─────────────────────────────────────────────
-// ─── UNLIKE IMAGE ─────────────────────────────────────────────
-// ─── COMMENT ON IMAGE ─────────────────────────────────────────────
-// ─── DELETE COMMENT ON IMAGE ─────────────────────────────────────────────
-// ─── GET FIRST 10 IMAGES ─────────────────────────────────────────────
-// ─── GET SUBSIQUENT 10 IMAGES ─────────────────────────────────────────────
-// ─── UPLOAD USER IMAGE ─────────────────────────────────────────────
-//
+/**
+ * Gets the fist 10 images in all images array
+ * @param {*} req
+ * @param {*} res
+ */
+app.post("/retreiveFirstTenImages", (req, res) => {
+  const path = "https://api.unsplash.com/photos/?client_id=" + process.env.UNSPLASH_ID;
+  request(path, (err, data) => {
+    if (err) {
+      res.send({
+        success: false,
+        message: "Images not got succesfully"
+      });
+    }
+    let bodyData = convertData(JSON.parse(data.body));
+    res.send({
+      success: true,
+      message: "Images got succesfully",
+      data: bodyData
+    });
+  });
+});
+
+function convertData(data) {
+  const images = data;
+  return images.map(d => ({
+    imageUrl: d.urls.regular,
+    imageId: d.id,
+    date: d.created_at,
+    likes: d.likes,
+    description: d.desciption,
+    userName: d.user.name,
+    userLink: d.user.links.self
+  }));
+}
+
+/**
+ * Gets next 10 images in the images array
+ * @param {*} req
+ * @param {*} res
+ */
+app.post('/retreiveNextTenImages/:pastRetreiveNumber', (req, res) => {
+  // look at past retreive nunber and count though array
+  // send back next 10 images and past number + 10
+});
+
+/**
+ * Likes an Image
+ * @param {*} req
+ * @param {*} res
+ */
+app.post('/likeImage/:imageId', (req, res) => {
+// find image and add 1 like to number
+// find user how liked and add image id to array
+});
+
+/**
+ * Dislikes an image
+ * @param {*} req
+ * @param {*} res
+ */
+app.post('/dislikeImage/:imageId', (req,res) => {
+  // find image and decress 1 to number
+  // find user and remove id from array
+});
+
+/**
+ * Adds a comment to an image
+ * @param {*} req
+ * @param {*} res
+ */
+app.post('/addCommentToImage/:imageId', (req, res) => {
+  // find image and add comment to array of comments
+  // find user and add comment id to user array
+});
+
+/**
+ * remove a comment from an image
+ * @param {*} req
+ * @param {*} res
+ */
+app.post('/removeCommentFromImage/:imageId', (req, res) => {
+  // find image and remove comment
+  // find user and remove comment
+});
 
 //
 // ─── DATABASE ACTIONS ROUTES ───────────────────────────────────────────────────────
@@ -253,91 +329,8 @@ app.post("/uploadNewImage", (req, res) => {
 //     })
 // });
 
-// /**
-//  * Saves a new Antique to the user model in the database
-//  * @param {*} req
-//  * @param {*} res
-//  * @param {*} next
-//  */
-// app.post("/saveNewAntique", function (req, res, next) {
-//   const data = req.body.data;
-//   const newAntique = new Antique({
-//     name: data.antique.name,
-//     artist: data.antique.artist,
-//     year: data.antique.year,
-//     category: data.antique.category.category,
-//     subCategory: data.antique.subCategory,
-//     signed: data.antique.signed,
-//     boughtPrice: data.antique.boughtPrice,
-//     soldPrice: data.antique.soldPrice,
-//     value: data.antiqueValue,
-//     image: data.antique.image,
-//     description: data.antique.description,
-//     condition: data.antique.condition,
-//     width: data.antique.width,
-//     height: data.antique.height,
-//     depth: data.antique.depth,
-//     material: data.antique.material,
-//     location: data.antique.location,
-//     provenance: data.antique.provenance,
-//     provenanceImage: data.antique.provenanceImage,
-//     status: data.antique.status,
-//   });
-//   newAntique.save(function (err, antique) {
-//     if (err) {
-//       return next(err);
-//       res.send(err);
-//     }
-//     res.send({
-//       success: true,
-//       message: 'antique saved'
-//     });
-//   });
-// });
 
-// /**
-//  * Edits an antique in the database
-//  * @param {*} req
-//  * @param {*} res
-//  * @param {*} next
-//  */
-// app.post("/editAntique/:_id", function (req, res, next) {
-//   var updatedAntique = req.body.data.antique;
-//   var updatedValue = req.body.data.antiqueValue
-//   async.parallel({
-//       updateAntique: function (callback) {
-//         Antique.findByIdAndUpdate(req.params._id, {
-//           updatedAntique
-//         }).exec(function (err, serverUpdatedAntique) {
-//           callback(err, serverUpdatedAntique);
-//         });
-//       },
-//       updateAntiqueValue: function (callback) {
-//         Antique.findByIdAndUpdate(
-//           req.params._id, {
-//             $push: {
-//               value: updatedValue
-//             }
-//           }, {
-//             new: true
-//           }
-//         ).exec(function (err, finalUpdatedAntique) {
-//           callback(err, finalUpdatedAntique);
-//         });
-//       }
-//     },
-//     function (err, antique) {
-//       if (err) {
-//         next(err);
-//         return;
-//       }
-//       res.send({
-//         success: true,
-//         antique: antique
-//       });
-//     }
-//   )
-// });
+
 
 // /**
 //  * removes an antique in the database
