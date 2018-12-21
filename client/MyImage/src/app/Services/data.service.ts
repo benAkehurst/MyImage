@@ -9,26 +9,16 @@ import { keys } from '../secret/keys';
   providedIn: 'root'
 })
 export class DataService {
+
+  private baseUrl = 'http://localhost:3000/';
+  private headers = new Headers({'Content-Type': 'application/json'});
+  returnData: any;
+
+
   constructor(private http: HttpClient) {}
 
   public getNewImages() {
-    const url = 'https://api.unsplash.com/photos/?client_id=';
-    const key = keys.UNSPLASH_API;
-    const requestUrl = url + key;
-    return this.http.get(requestUrl).pipe(map(data => this.convertData(data)));
-  }
-
-  public convertData(data) {
-    const images = data;
-
-    return images.map(d => ({
-      imageUrl: d.urls.regular,
-      imageId: d.id,
-      date: d.created_at,
-      likes: d.likes,
-      description: d.desciption,
-      userName: d.user.name,
-      userLink: d.user.links.self
-    }));
+    const url = this.baseUrl + 'retreiveFirstTenImages';
+    return this.http.post(url, {headers: this.headers}).pipe(map(data => this.returnData = data));
   }
 }

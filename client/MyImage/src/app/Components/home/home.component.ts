@@ -17,8 +17,8 @@ export class HomeComponent implements OnInit {
   }
 
   public retreiveNewImages() {
-    this.dataService.getNewImages().subscribe(data => {
-      const retreiveNewImages = data;
+    this.dataService.getNewImages().subscribe(response => {
+      const retreiveNewImages = response.data;
       this.displayImages(retreiveNewImages);
     });
   }
