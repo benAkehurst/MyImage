@@ -1,0 +1,20 @@
+<div class="page-container">
+  <div class="images-container">
+    <section class="single-image" *ngFor="let i of imageBank">
+      <div class="image-container">
+        <section class="image-output">
+          <img src={{imageBank.imageUrl}} />
+        </section>
+        <section class="like-image">
+          <p>{{imageBank.likes}}</p>
+        </section>
+        <section class="image-comments">
+          Comments
+        </section>
+        <section class="user-info">
+          User Info
+        </section>
+      </div>
+    </section>
+  </div>
+</div>
